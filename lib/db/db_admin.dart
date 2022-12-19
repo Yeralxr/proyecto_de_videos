@@ -55,13 +55,47 @@ class DBAdmin {
 
   getRawTasks() async {
     Database? db = await checkDatabase();
-    List tasks = await db!.rawQuery("SELECT * FROM task");
-    print(tasks);
+    List tasks = await db!.rawQuery("SELECT * FROM Task");
+    print(tasks[0]);
   }
 
-  getTasks() async {
+  Future<List<Map<String, dynamic>>> getTasks() async {
     Database? db = await checkDatabase();
-    List Tasks = await db!.query("Task");
-    print(Tasks);
+    List<Map<String, dynamic>> tasks = await db!.query("Task");
+    return tasks;
+  }
+
+  //metodo update
+
+  updateRawTask() async {
+    Database? db = await checkDatabase();
+    int res = await db!.rawUpdate(
+        "UPDATE TASK SET title = 'ultimas compras',description = 'comestibles',status ='true' WHERE id = 2");
+    print(res);
+  }
+
+  updateTask() async {
+    Database? db = await checkDatabase();
+    int res = await db!.update(
+      "Task",
+      {
+        "title": "ir al cine",
+        "description": "el fin de semana en la tarde",
+        "status": "false",
+      },
+      where: "id = 2",
+    );
+  }
+
+  deleteRawTask() async {
+    Database? db = await checkDatabase();
+    int res = await db!.rawDelete("DELETE FROM TASK WHERE id = 2");
+    print(res);
+  }
+
+  deleteTask() async {
+    Database? db = await checkDatabase();
+    int res = await db!.delete("TASK", where: "id = 3");
+    print(res);
   }
 }
