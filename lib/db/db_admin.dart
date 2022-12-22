@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:proyecto_de_videos/models/task_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBAdmin {
@@ -32,25 +34,25 @@ class DBAdmin {
     });
   }
 
-  insertRawTask() async {
+  Future<int> insertRawTask(TaskModel model) async {
     Database? db = await checkDatabase();
     int res = await db!.rawInsert(
-        "INSERT INTO TASK(title, description, status) VALUES ('salir de compras','al centro comercial','false')");
+        "INSERT INTO TASK(title, description, status) VALUES ('${model.title}','${model.description}','${model.status.toString()}')");
 
-    print(res);
+    return res;
   }
 
-  insertTask() async {
+  Future<int> insertTask(TaskModel model) async {
     Database? db = await checkDatabase();
     int res = await db!.insert(
       "TASK",
       {
-        "title": "comprar el nuevo disco",
-        "description": "nuevo discode epica",
-        "status": "false",
+        "title": model.title,
+        "description": model.description,
+        "status": model.status,
       },
     );
-    print(res);
+    return res;
   }
 
   getRawTasks() async {
@@ -59,10 +61,23 @@ class DBAdmin {
     print(tasks[0]);
   }
 
-  Future<List<Map<String, dynamic>>> getTasks() async {
+  Future<List<TaskModel>> getTasks() async {
     Database? db = await checkDatabase();
     List<Map<String, dynamic>> tasks = await db!.query("Task");
-    return tasks;
+    List<TaskModel> taskModelList =
+        tasks.map((e) => TaskModel.deMapAModel(e)).toList();
+
+    /* 
+   task.forEach(
+      (element) {
+        TaskModel task = TaskModel.deMapAModel(element);
+        taskModelList.add(task);
+      },
+    ); 
+    
+    */
+
+    return taskModelList;
   }
 
   //metodo update
@@ -93,9 +108,9 @@ class DBAdmin {
     print(res);
   }
 
-  deleteTask() async {
+  Future<int> deleteTask(int id) async {
     Database? db = await checkDatabase();
-    int res = await db!.delete("TASK", where: "id = 3");
-    print(res);
+    int res = await db!.delete("TASK", where: "id = $id");
+    return res;
   }
 }
